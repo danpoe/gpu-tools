@@ -185,13 +185,17 @@ def handle_args(args):
 
 # ------------------------------------------------------------------------------
 
-### Skip over nested items (return pos of next character), forwards or backwards
-# s: file as string
-# a: left item
-# b: right item
-# d: direction(1: forward, -1: backward)
-# pos: points at first item (a for forward, b for backward)
 def skip_nested(s, a, b, d, pos):
+  '''
+  Skip over nested items (forwards or backwards)
+
+  :param s: input file contents
+  :param a: left item
+  :param b: right item
+  :param d: direction (1: forward, -1: backward)
+  :param pos: position of first item (`a` for forward, `b` for backward)
+  :return: position of next character
+  '''
   l = len(s)
   assert(pos < l)
   assert(pos >= 0)
@@ -222,8 +226,8 @@ def skip_nested(s, a, b, d, pos):
 
   assert(False)
 
-### Return position of current or next non-whitespace character
 def eat(s, pos):
+  '''Return position of current or next non-whitespace character'''
   l = len(s)
   assert(pos < l)
   while (pos < l):
@@ -244,9 +248,14 @@ def isspeccand(s):
       return True
   return False
 
-### Split spec instruction (add or xor)
-# 1: spec instruction string
+
 def split_add_inst(ins):
+  '''
+  Split spec instruction (add or xor)
+
+  :param ins: spec instruction string
+  :return: pair of immediate value and register
+  '''
   global sins
   ins = ins.strip()
   ins = ins.rstrip(";")
@@ -265,9 +274,13 @@ def split_add_inst(ins):
   num = items[2].strip()
   return (int(num, 16), reg)
 
-### Get spec values
-# 1: instruction (string)
 def get_spec_item(ins):
+  '''
+  Get spec values
+
+  :param ins: instruction
+  :return: triple of type, order, and register
+  '''
   if not isspeccand(ins):
     return None
   spec = split_add_inst(ins)
@@ -279,9 +292,13 @@ def get_spec_item(ins):
   typ = gettypn(num)
   return (typ, order, reg)
 
-### Retrieve spec in internal format
-# 1: list of instructions (strings) in static program order
 def cluster_specs(lis):
+  '''
+  Retrieve spec in internal format
+
+  :param lis: list of instructions (strings) in static program order
+  :return: clusters of instructions (list of lists)
+  '''
   n = len(lis)
   cl = []
 
@@ -363,8 +380,13 @@ def cluster_specs(lis):
 def isinst(s):
   return re.match('^\s+/\*.*[^0-9a-fxA-FX/\* ]', s)
 
-# op: memory access operand, like [r1]
 def get_mem_reg(op):
+  '''
+  Get register used in memory access
+
+  :param op: memory access operand, e.g. [r1]
+  :return: register operand or None
+  '''
   assert(type(op) == str)
   op = op.strip()
   op = op.lstrip('[')
@@ -375,8 +397,13 @@ def get_mem_reg(op):
   else:
     return None
 
-# ins: full instruction, oc: opcode list
 def split_mem_inst(ins, ocl):
+  '''
+  Split memory instruction
+
+  :param ins: full instruction
+  :param ocl: list of opcodes
+  '''
   global cfg
   assert(type(ins) == str)
   assert(type(ocl) == list)
@@ -397,21 +424,38 @@ def split_mem_inst(ins, ocl):
 
 # ins: full instruction, oc: opcode
 def has_oc(ins, oc):
+  '''
+  Check if instruction has the given opcode
+
+  :param ins: full instruction
+  :param oc: opcode
+  :return: True if the instruction has the given opcode, False otherwise
+  '''
   if ins[0:len(oc)+1] == oc + " ":
       return True
   return False
 
-# ins: full instruction, ocl: opcode list
 def has_ocl(ins, ocl):
+  '''
+  Check if instruction has any of the given opcodes
+
+  :param ins: full instruction
+  :param ocl: list of opcodes
+  :return: True if the instruction has any of the given opcodes, False otherwise
+  '''
   for oc in ocl:
     if has_oc(ins, oc):
       return True
   return False
 
-### Check a single cluster
-# 1: specification for a single thread
-# 2: list of instructions
 def check(spec, lis):
+  '''
+  Check a single cluster against the given specification
+
+  :param spec: specification for a single thread
+  :param lis: list of instructions
+  :return: True if the cluster satisfies the specification, False otherwise
+  '''
   global fl
   global source
 
@@ -472,8 +516,13 @@ def check(spec, lis):
 
   return False
 
-# 1: cubobjdump output
 def check_spec(s):
+  '''
+  Check specification embedded in the cuobjdump output
+
+  :param s: cuobjdump output
+  :return: True is specification is satisfied, False otherwise
+  '''
   lis = s.splitlines()
   lis = list(filter(isinst, lis))
   n = len(lis)
