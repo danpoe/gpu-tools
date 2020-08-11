@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-# Check a CUDA binary for optimisations
-
-# ------------------------------------------------------------------------------
+'''
+Check a CUDA binary for optimisations
+'''
 
 import sys
 import os
@@ -10,9 +10,7 @@ import subprocess
 import re
 import enum
 
-# ------------------------------------------------------------------------------
 # Generic globals
-
 debug = False
 cmd = "optcheck"
 binary = ""
@@ -98,12 +96,14 @@ def gettypn(num):
 def print_err(s):
   print(s, file = sys.stderr)
 
+
 def bail_err(s, print_usage = False):
   print_err(cmd + ": " + s)
   if print_usage:
     print_err("")
     usage()
   sys.exit(1)
+
 
 def usage():
   print_err("Usage:")
@@ -118,6 +118,7 @@ def usage():
   print_err("  <txtfile>: text file containing cuobjdump output")
   print_err("")
   print_err("  Exit code: 0 (no opt detected), 1 (error), 2 (opt detected)")
+
 
 def handle_args(args):
   global cmd
@@ -226,6 +227,7 @@ def skip_nested(s, a, b, d, pos):
 
   assert(False)
 
+
 def eat(s, pos):
   '''Return position of current or next non-whitespace character'''
   l = len(s)
@@ -274,6 +276,7 @@ def split_add_inst(ins):
   num = items[2].strip()
   return (int(num, 16), reg)
 
+
 def get_spec_item(ins):
   '''
   Get spec values
@@ -291,6 +294,7 @@ def get_spec_item(ins):
   order = getordn(num)
   typ = gettypn(num)
   return (typ, order, reg)
+
 
 def cluster_specs(lis):
   '''
@@ -380,6 +384,7 @@ def cluster_specs(lis):
 def isinst(s):
   return re.match('^\s+/\*.*[^0-9a-fxA-FX/\* ]', s)
 
+
 def get_mem_reg(op):
   '''
   Get register used in memory access
@@ -396,6 +401,7 @@ def get_mem_reg(op):
     return op
   else:
     return None
+
 
 def split_mem_inst(ins, ocl):
   '''
@@ -422,7 +428,7 @@ def split_mem_inst(ins, ocl):
   items = [ins.strip() for ins in items]
   return items
 
-# ins: full instruction, oc: opcode
+
 def has_oc(ins, oc):
   '''
   Check if instruction has the given opcode
@@ -434,6 +440,7 @@ def has_oc(ins, oc):
   if ins[0:len(oc)+1] == oc + " ":
       return True
   return False
+
 
 def has_ocl(ins, ocl):
   '''
@@ -448,6 +455,7 @@ def has_ocl(ins, ocl):
     if has_oc(ins, oc):
       return True
   return False
+
 
 def check(spec, lis):
   '''
@@ -516,6 +524,7 @@ def check(spec, lis):
         next += 1
 
   return False
+
 
 def check_spec(s):
   '''
