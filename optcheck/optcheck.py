@@ -429,7 +429,7 @@ def has_oc(ins, oc):
 
   :param ins: full instruction
   :param oc: opcode
-  :return: True if the instruction has the given opcode, False otherwise
+  :return: `True` if the instruction has the given opcode, `False` otherwise
   '''
   if ins[0:len(oc)+1] == oc + " ":
       return True
@@ -441,7 +441,8 @@ def has_ocl(ins, ocl):
 
   :param ins: full instruction
   :param ocl: list of opcodes
-  :return: True if the instruction has any of the given opcodes, False otherwise
+  :return: `True` if the instruction has any of the given opcodes, `False`
+      otherwise
   '''
   for oc in ocl:
     if has_oc(ins, oc):
@@ -454,7 +455,7 @@ def check(spec, lis):
 
   :param spec: specification for a single thread
   :param lis: list of instructions
-  :return: True if the cluster satisfies the specification, False otherwise
+  :return: `True` if the cluster satisfies the specification, `False` otherwise
   '''
   global fl
   global source
@@ -521,7 +522,7 @@ def check_spec(s):
   Check specification embedded in the cuobjdump output
 
   :param s: cuobjdump output
-  :return: True is specification is satisfied, False otherwise
+  :return: `True` is specification is satisfied, `False` otherwise
   '''
   lis = s.splitlines()
   lis = list(filter(isinst, lis))
