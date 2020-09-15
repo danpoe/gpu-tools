@@ -4,6 +4,7 @@
 Check a CUDA binary for optimisations
 '''
 
+import argparse
 import sys
 import os
 import subprocess
@@ -97,92 +98,52 @@ def print_err(s):
   print(s, file = sys.stderr)
 
 
-def bail_err(s, print_usage = False):
+def bail_err(s):
   print_err(cmd + ": " + s)
-  if print_usage:
-    print_err("")
-    usage()
   sys.exit(1)
 
 
-def usage():
-  print_err("Usage:")
-  print_err("  optcheck.py [-debug] [-checkreg <bool>] [-mapping <map>]\
- (-bin <cubin> | -txt <txtfile>)")
-  print_err("")
-  print_err("  <bool>: indicating whether same register check is performed\
- (default true)")
-  print_err("  <map>: select mapping, values 'pre-maxwell' (default) or\
- 'maxwell'")
-  print_err("  <cubin>: CUDA binary")
-  print_err("  <txtfile>: text file containing cuobjdump output")
-  print_err("")
-  print_err("  Exit code: 0 (no opt detected), 1 (error), 2 (opt detected)")
-
-
 def handle_args(args):
-  global cmd
   global binary
   global txt
   global debug
   global cfg
   global imap
-  global imap_pm
-  global imap_ma
 
-  cmd = args[0]
-  l = len(args)
-  if not (3 <= l <= 6):
-    bail_err("Wrong number of arguments", True)
+  parser = argparse.ArgumentParser(
+    description='Check a CUDA binary for optimisations',
+    epilog='Exit code: 0 (no opt detected), 1 (error), 2 (opt detected)')
+  parser.add_argument('--debug', action='store_true')
+  parser.add_argument(
+    '--no-same-register-check', action='store_false',
+    dest='same_register_check')
+  parser.add_argument(
+    '--mapping', metavar='map', choices=['pre-maxwell', 'maxwell'],
+    default='pre-maxwell', help='mapping to use (pre-maxwell or maxwell)')
+  parser.add_argument(
+    '--text', action='store_true',
+    help='file given is a text file containing cuobjdump output')
+  parser.add_argument(
+    'file',
+    help='CUDA binary or text file containing cuobjdump output (with --text)')
+  args = parser.parse_args()
 
-  next_is_bin = False
-  next_is_txt = False
-  next_is_map = False
+  debug = args.debug
+  if args.text:
+    txt = args.file
+  else:
+    binary = args.file
 
-  for i in range(1, l):
-    arg = args[i]
+  if args.mapping == 'pre-maxwell':
+    cfg = Cfg.pre_ma
+    imap = imap_pm
+  else:
+    assert args.mapping == 'maxwell'
+    cfg = Cfg.ma
+    imap = imap_ma
 
-    if next_is_bin:
-      binary = arg
-      next_is_bin = False
-      continue
-    if next_is_txt:
-      txt = arg
-      next_is_txt = False
-      continue
-    if next_is_map:
-      if arg == "pre-maxwell":
-        cfg = Cfg.pre_ma
-        imap = imap_pm
-      elif arg == "maxwell":
-        cfg = Cfg.ma
-        imap = imap_ma
-      else:
-        bail_err("invalid argument to -mapping", True)
-      next_is_map = False
-      continue
-
-    if arg == "-bin":
-      next_is_bin = True
-    elif arg == "-txt":
-      next_is_txt = True
-    elif arg == "-mapping":
-      next_is_map = True
-    elif arg == "-debug":
-      if debug:
-        bail_err("-debug given more than once", True)
-      debug = True
-    elif arg == "-checkreg":
-      bail_err("Option -checkreg currently unimplemented; check is always\
- performed", True)
-    else:
-      bail_err("Unknown option '" + arg + "'", True)
-
-  if next_is_bin or next_is_txt:
-    bail_err("No argument to -bin or -txt provided", True)
-
-  if not binary and not txt:
-    bail_err("Neither binary nor textfile given", True)
+  if not args.same_register_check:
+    bail_err('--no-same-register-check is unimplemented')
 
 # ------------------------------------------------------------------------------
 
