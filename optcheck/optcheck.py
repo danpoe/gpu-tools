@@ -99,7 +99,7 @@ def print_err(s):
 
 
 def bail_err(s):
-  print_err(cmd + ": " + s)
+  print_err(f'{cmd}: {s}')
   sys.exit(1)
 
 
@@ -398,7 +398,7 @@ def has_oc(ins, oc):
   :param oc: opcode
   :return: `True` if the instruction has the given opcode, `False` otherwise
   '''
-  if ins[0:len(oc)+1] == oc + " ":
+  if ins[0:len(oc)+1] == f'{oc} ':
       return True
   return False
 
@@ -508,8 +508,8 @@ def check_spec(s):
   l = len(cl)
   assert(l > 0)
 
-  print("Specification clusters: " + str(l))
-  print("Specification: " + str(cl))
+  print(f'Specification clusters: {l}')
+  print(f'Specification: {cl}')
 
   ok = True
   i = 0
@@ -517,9 +517,9 @@ def check_spec(s):
   for spec in cl:
     ret = check(spec, lis)
     if ret:
-      print("Cluster " + str(i) + ": OK")
+      print(f'Cluster {i}: OK')
     else:
-      print("Cluster " + str(i) + ": Failure")
+      print(f'Cluster {i}: Failure')
     i += 1
     ok &= ret
 
@@ -542,12 +542,12 @@ def start():
       bail_err("cuobjdump error (OSError)")
     except subprocess.CalledProcessError:
       bail_err("cuobjdump error (CalledProcessError)")
-    print("Binary '" + binary + "' successfully loaded")
+    print(f'Binary {binary} successfully loaded')
     testname = binary
   elif txt:
     with open(txt, 'r') as f:
       out = f.read()
-    print("File '" + txt + "' successfully read")
+    print(f'File {txt} successfully read')
     testname = txt
   else:
     assert(False)
@@ -555,7 +555,7 @@ def start():
   # Compute target
   testname = testname.lower()
   for f in fl:
-    c = testname.count(f + 's')
+    c = testname.count(f'{f}s')
     target[f] += 2 * c
   for f in fl:
     c = testname.count(f)
