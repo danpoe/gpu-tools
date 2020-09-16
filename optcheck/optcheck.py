@@ -103,7 +103,7 @@ def bail_err(s):
   sys.exit(1)
 
 
-def handle_args(args):
+def handle_args():
   global binary
   global txt
   global debug
@@ -527,8 +527,7 @@ def check_spec(s):
 
 # ------------------------------------------------------------------------------
 
-if __name__ == "__main__":
-  handle_args(sys.argv)
+def start():
   out = ''
   testname = ''
 
@@ -546,9 +545,8 @@ if __name__ == "__main__":
     print("Binary '" + binary + "' successfully loaded")
     testname = binary
   elif txt:
-    sf = open(txt, 'r')
-    out = sf.read()
-    sf.close()
+    with open(txt, 'r') as f:
+      out = f.read()
     print("File '" + txt + "' successfully read")
     testname = txt
   else:
@@ -577,3 +575,7 @@ if __name__ == "__main__":
     print("!!FAILURE!!")
     sys.exit(2)
 
+
+if __name__ == "__main__":
+  handle_args()
+  start()
